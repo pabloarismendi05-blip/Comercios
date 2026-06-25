@@ -5,5 +5,5 @@
 //   apiBase: 'https://kiosco-back.onrender.com/api'
 export const environment = {
   produccion: true,
-  apiBase: 'https://CAMBIAR-POR-TU-BACKEND.onrender.com/api',
+  apiBase: 'https://comercios-so2h.onrender.com/api',
 };
