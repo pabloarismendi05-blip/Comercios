@@ -1,0 +1,211 @@
+<div class="pos">
+  <!-- Buscador siempre arriba -->
+  <header class="buscador">
+    <a class="volver" routerLink="/" aria-label="Volver al inicio">←</a>
+    <input
+      type="text"
+      inputmode="search"
+      placeholder="Buscar producto o código…"
+      [value]="query()"
+      (input)="onBuscar($any($event.target).value)"
+      autocomplete="off"
+    />
+    <button type="button" class="btn-manual" (click)="abrirManual()">
+      + Venta rápida
+    </button>
+  </header>
+
+  <!-- Resultados de búsqueda -->
+  @if (query().trim()) {
+    <ul class="resultados">
+      @if (buscando()) {
+        <li class="vacio">Buscando…</li>
+      } @else if (resultados().length === 0) {
+        <li class="vacio">Sin resultados para "{{ query() }}"</li>
+      } @else {
+        @for (p of resultados(); track p.id) {
+          <li class="resultado" (click)="agregar(p)">
+            <div class="info">
+              <span class="nombre">{{ p.nombre }}</span>
+              <span
+                class="stock"
+                [class.bajo]="p.stockActual <= 0"
+              >
+                Stock: {{ p.stockActual }}
+              </span>
+            </div>
+            <span class="precio">{{ p.precioVenta | currency: 'ARS' : 'symbol' : '1.0-2' }}</span>
+          </li>
+        }
+      }
+    </ul>
+  }
+
+  <!-- Ticket -->
+  <section class="ticket">
+    @if (ticket().length === 0) {
+      <p class="ticket-vacio">
+        Buscá un producto arriba y tocalo para agregarlo a la venta.
+      </p>
+    } @else {
+      @for (item of ticket(); track $index) {
+        <div class="linea" [class.alerta]="sinStock(item)">
+          <div class="linea-info">
+            <span class="linea-nombre">{{ item.nombre }}</span>
+            <span class="linea-precio">
+              {{ item.precioUnitario | currency: 'ARS' : 'symbol' : '1.0-2' }} c/u
+              @if (sinStock(item)) {
+                <span class="aviso">⚠ sin stock</span>
+              }
+            </span>
+          </div>
+          <div class="linea-cantidad">
+            <button type="button" (click)="menos(item)">−</button>
+            <span class="cant">{{ item.cantidad }}</span>
+            <button type="button" (click)="mas(item)">+</button>
+          </div>
+          <span class="linea-subtotal">
+            {{ item.precioUnitario * item.cantidad | currency: 'ARS' : 'symbol' : '1.0-2' }}
+          </span>
+          <button type="button" class="quitar" (click)="quitar(item)">✕</button>
+        </div>
+      }
+    }
+  </section>
+
+  <!-- Barra de total + cobrar (fija abajo) -->
+  <footer class="barra-total">
+    <div class="total">
+      <span class="etiqueta">Total</span>
+      <span class="monto">{{ total() | currency: 'ARS' : 'symbol' : '1.0-2' }}</span>
+    </div>
+    <button
+      type="button"
+      class="btn-cobrar"
+      [disabled]="ticket().length === 0 || guardando()"
+      (click)="abrirCobro()"
+    >
+      COBRAR
+    </button>
+  </footer>
+
+  <!-- Modal: venta rápida (monto manual) -->
+  @if (mostrarManual()) {
+    <div class="overlay" (click)="mostrarManual.set(false)">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h2>Venta rápida</h2>
+        <p class="sub">Para algo que no está cargado en el sistema.</p>
+        <label>
+          Monto
+          <input
+            type="number"
+            inputmode="decimal"
+            placeholder="0"
+            [ngModel]="montoManual()"
+            (ngModelChange)="montoManual.set($event)"
+          />
+        </label>
+        <label>
+          Descripción (opcional)
+          <input
+            type="text"
+            placeholder="Varios"
+            [ngModel]="descManual()"
+            (ngModelChange)="descManual.set($event)"
+          />
+        </label>
+        <div class="modal-botones">
+          <button type="button" class="secundario" (click)="mostrarManual.set(false)">
+            Cancelar
+          </button>
+          <button type="button" class="primario" (click)="agregarManual()">
+            Agregar
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal: elegir medio de pago -->
+  @if (paso() === 'cobro') {
+    <div class="overlay" (click)="cancelarCobro()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h2>Cobrar {{ total() | currency: 'ARS' : 'symbol' : '1.0-2' }}</h2>
+        <p class="sub">¿Cómo paga?</p>
+        <div class="medios">
+          <button type="button" class="medio efectivo" [disabled]="guardando()" (click)="cobrarEfectivo()">
+            💵 Efectivo
+          </button>
+          <button type="button" class="medio transfer" [disabled]="guardando()" (click)="cobrarTransferencia()">
+            📲 Transferencia
+          </button>
+          <button type="button" class="medio fiado" [disabled]="guardando()" (click)="irAFiado()">
+            📒 Fiado
+          </button>
+        </div>
+        <button type="button" class="secundario ancho" (click)="cancelarCobro()">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Modal: fiado (elegir o crear cliente) -->
+  @if (paso() === 'fiado') {
+    <div class="overlay" (click)="cancelarCobro()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h2>Fiado</h2>
+        <p class="sub">¿A quién se le anota la deuda?</p>
+
+        @if (clienteSeleccionado(); as c) {
+          <div class="cliente-elegido">
+            <span>👤 {{ c.nombre }}</span>
+            <button type="button" class="link" (click)="clienteSeleccionado.set(null)">cambiar</button>
+          </div>
+        } @else {
+          <input
+            type="text"
+            placeholder="Buscar o escribir nombre…"
+            [value]="clienteQuery()"
+            (input)="onBuscarCliente($any($event.target).value)"
+            autocomplete="off"
+          />
+          <ul class="clientes">
+            @for (cli of clientes(); track cli.id) {
+              <li (click)="elegirCliente(cli)">
+                <span>{{ cli.nombre }}</span>
+                @if (cli.saldo > 0) {
+                  <span class="deuda">debe {{ cli.saldo | currency: 'ARS' : 'symbol' : '1.0-2' }}</span>
+                }
+              </li>
+            }
+            @if (clienteQuery().trim()) {
+              <li class="crear" (click)="crearClienteRapido()">
+                ＋ Crear cliente "{{ clienteQuery().trim() }}"
+              </li>
+            }
+          </ul>
+        }
+
+        <div class="modal-botones">
+          <button type="button" class="secundario" (click)="cancelarCobro()">Cancelar</button>
+          <button
+            type="button"
+            class="primario"
+            [disabled]="!clienteSeleccionado() || guardando()"
+            (click)="confirmarFiado()"
+          >
+            Confirmar fiado
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Aviso (éxito / error) -->
+  @if (mensaje(); as m) {
+    <div class="toast" [class.error]="m.tipo === 'error'" [class.ok]="m.tipo === 'ok'">
+      {{ m.texto }}
+    </div>
+  }
+</div>

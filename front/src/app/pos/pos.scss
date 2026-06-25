@@ -1,0 +1,384 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+  background: #f5f6f8;
+  color: #1f2933;
+  font-family: 'Segoe UI', Roboto, -apple-system, sans-serif;
+}
+
+.pos {
+  max-width: 540px;
+  margin: 0 auto;
+  // Deja lugar para la barra de total fija abajo.
+  padding-bottom: 96px;
+}
+
+/* ── Buscador ── */
+.buscador {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.buscador .volver {
+  flex-shrink: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+  text-decoration: none;
+  color: #1664a8;
+  width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: #e8f1fb;
+}
+
+.buscador input {
+  flex: 1;
+  font-size: 1.1rem;
+  padding: 0.85rem 1rem;
+  border: 2px solid #d9e2ec;
+  border-radius: 12px;
+  outline: none;
+}
+.buscador input:focus {
+  border-color: #2680c2;
+}
+
+.btn-manual {
+  flex-shrink: 0;
+  border: none;
+  background: #e8f1fb;
+  color: #1664a8;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 0 0.9rem;
+  font-size: 0.9rem;
+}
+
+/* ── Resultados ── */
+.resultados {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+.resultados .vacio {
+  padding: 1rem;
+  color: #829ab1;
+  text-align: center;
+}
+.resultado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid #eef1f4;
+  cursor: pointer;
+}
+.resultado:active {
+  background: #f0f6fc;
+}
+.resultado .info {
+  display: flex;
+  flex-direction: column;
+}
+.resultado .nombre {
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+.resultado .stock {
+  font-size: 0.8rem;
+  color: #627d98;
+}
+.resultado .stock.bajo {
+  color: #c0392b;
+  font-weight: 600;
+}
+.resultado .precio {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+/* ── Ticket ── */
+.ticket {
+  padding: 0.5rem 0.75rem;
+}
+.ticket-vacio {
+  text-align: center;
+  color: #829ab1;
+  padding: 2.5rem 1rem;
+}
+.linea {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fff;
+  border-radius: 12px;
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.linea.alerta {
+  border: 1.5px solid #f0a202;
+  background: #fff8e8;
+}
+.linea-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.linea-nombre {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.linea-precio {
+  font-size: 0.78rem;
+  color: #627d98;
+}
+.aviso {
+  color: #b66a00;
+  font-weight: 600;
+  margin-left: 0.25rem;
+}
+.linea-cantidad {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.linea-cantidad button {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 9px;
+  background: #e8f1fb;
+  color: #1664a8;
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.linea-cantidad .cant {
+  min-width: 1.5rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+.linea-subtotal {
+  font-weight: 700;
+  min-width: 70px;
+  text-align: right;
+}
+.quitar {
+  border: none;
+  background: transparent;
+  color: #9aa5b1;
+  font-size: 1rem;
+  padding: 0.25rem;
+}
+
+/* ── Barra total (fija abajo) ── */
+.barra-total {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 540px;
+  margin: 0 auto;
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: #fff;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+.barra-total .total {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.barra-total .etiqueta {
+  font-size: 0.75rem;
+  color: #627d98;
+}
+.barra-total .monto {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+.btn-cobrar {
+  flex: 1;
+  border: none;
+  border-radius: 14px;
+  background: #0a8754;
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+.btn-cobrar:disabled {
+  background: #b7c2cd;
+}
+
+/* ── Modales ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 50;
+}
+.modal {
+  width: 100%;
+  max-width: 540px;
+  background: #fff;
+  border-radius: 18px 18px 0 0;
+  padding: 1.25rem 1.25rem 1.75rem;
+  animation: subir 0.18s ease-out;
+}
+@keyframes subir {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.modal h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.3rem;
+}
+.modal .sub {
+  margin: 0 0 1rem;
+  color: #627d98;
+}
+.modal label {
+  display: block;
+  font-size: 0.85rem;
+  color: #486581;
+  margin-bottom: 0.75rem;
+}
+.modal label input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 0.3rem;
+  font-size: 1.1rem;
+  padding: 0.75rem;
+  border: 2px solid #d9e2ec;
+  border-radius: 10px;
+  outline: none;
+}
+.modal input:focus {
+  border-color: #2680c2;
+}
+.modal-botones {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+.primario,
+.secundario {
+  flex: 1;
+  border: none;
+  border-radius: 12px;
+  padding: 0.9rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.primario {
+  background: #0a8754;
+  color: #fff;
+}
+.primario:disabled {
+  background: #b7c2cd;
+}
+.secundario {
+  background: #eef1f4;
+  color: #486581;
+}
+.secundario.ancho {
+  width: 100%;
+  margin-top: 0.75rem;
+}
+
+/* ── Medios de pago ── */
+.medios {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.medio {
+  border: none;
+  border-radius: 14px;
+  padding: 1.1rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-align: left;
+}
+.medio.efectivo { background: #e6f7ee; color: #0a7a4a; }
+.medio.transfer { background: #e8f1fb; color: #1664a8; }
+.medio.fiado { background: #fdf0e6; color: #b15c12; }
+.medio:disabled { opacity: 0.6; }
+
+/* ── Clientes (fiado) ── */
+.clientes {
+  list-style: none;
+  margin: 0.75rem 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.clientes li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.85rem 0.5rem;
+  border-bottom: 1px solid #eef1f4;
+}
+.clientes li.crear {
+  color: #0a8754;
+  font-weight: 600;
+}
+.clientes .deuda {
+  font-size: 0.8rem;
+  color: #c0392b;
+}
+.cliente-elegido {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f0f6fc;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+.link {
+  border: none;
+  background: transparent;
+  color: #2680c2;
+  font-weight: 600;
+}
+
+/* ── Toast de aviso ── */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 110px;
+  transform: translateX(-50%);
+  z-index: 100;
+  max-width: 90%;
+  padding: 0.85rem 1.25rem;
+  border-radius: 12px;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+.toast.ok { background: #0a8754; color: #fff; }
+.toast.error { background: #c0392b; color: #fff; }

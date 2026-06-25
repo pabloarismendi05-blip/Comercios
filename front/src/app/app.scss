@@ -1,0 +1,59 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+  font-family: "Segoe UI", Roboto, -apple-system, sans-serif;
+  background: #f5f6f8;
+  color: #1f2933;
+}
+
+.bienvenida {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+  text-align: center;
+}
+
+h1 {
+  font-size: 2.25rem;
+  margin: 0 0 0.25rem;
+}
+
+.subtitulo {
+  margin: 0 0 2rem;
+  color: #52606d;
+}
+
+.estado {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  text-align: left;
+}
+
+.aclaracion {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  color: #52606d;
+}
+
+.etapas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.etapas li {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #eef1f4;
+  font-size: 1rem;
+}
+
+.etapas li:last-child {
+  border-bottom: none;
+}
+
+.etapas li.hecha {
+  font-weight: 600;
+  color: #0a8754;
+}

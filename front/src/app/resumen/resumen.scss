@@ -1,0 +1,166 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+  background: #f5f6f8;
+  color: #1f2933;
+  font-family: 'Segoe UI', Roboto, -apple-system, sans-serif;
+}
+
+.inicio {
+  max-width: 540px;
+  margin: 0 auto;
+  padding: 1rem 1rem 2rem;
+}
+
+.cabecera h1 {
+  text-align: center;
+  font-size: 1.8rem;
+  margin: 0.5rem 0 1.25rem;
+}
+
+.cargando {
+  text-align: center;
+  color: #829ab1;
+  padding: 2rem;
+}
+
+.tarjeta {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.tarjeta .etiqueta {
+  color: #627d98;
+  font-size: 0.95rem;
+}
+.tarjeta.destacada {
+  background: linear-gradient(135deg, #0a8754, #0a9d63);
+  color: #fff;
+}
+.tarjeta.destacada .etiqueta {
+  color: #d6f5e6;
+}
+.numerote {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.numero {
+  font-size: 2rem;
+  font-weight: 800;
+}
+.tarjeta .sub {
+  opacity: 0.85;
+}
+
+.medios {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.medio {
+  flex: 1;
+  background: #fff;
+  border-radius: 14px;
+  padding: 0.9rem 0.5rem;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.m-icono {
+  font-size: 1.3rem;
+}
+.m-label {
+  font-size: 0.75rem;
+  color: #627d98;
+}
+.m-monto {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.por-dia {
+  text-align: left;
+  align-items: stretch;
+}
+.por-dia .etiqueta {
+  text-align: left;
+  margin-bottom: 0.5rem;
+}
+.barras {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.barra-fila {
+  display: grid;
+  grid-template-columns: 2.6rem 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+.dia-nombre {
+  font-size: 0.85rem;
+  color: #627d98;
+  text-transform: capitalize;
+}
+.barra-pista {
+  background: #eef1f4;
+  border-radius: 999px;
+  height: 14px;
+  overflow: hidden;
+}
+.barra-relleno {
+  height: 100%;
+  background: #7cc6a3;
+  border-radius: 999px;
+  min-width: 2px;
+  transition: width 0.3s ease;
+}
+.barra-fila.hoy .barra-relleno {
+  background: #0a8754;
+}
+.barra-fila.hoy .dia-nombre {
+  color: #0a8754;
+  font-weight: 700;
+}
+.dia-monto {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: right;
+  min-width: 56px;
+}
+
+.accesos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+}
+.acceso {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.1rem 1.25rem;
+  text-decoration: none;
+  color: #1f2933;
+  font-size: 1.1rem;
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+.acceso .a-icono {
+  font-size: 1.4rem;
+}
+.acceso.vender {
+  background: #0a8754;
+  color: #fff;
+}

@@ -1,0 +1,22 @@
+# Dependencias
+node_modules/
+
+# Builds
+dist/
+front/dist/
+back/dist/
+.angular/
+
+# Variables de entorno y secretos (NUNCA subir)
+.env
+.env.*
+!.env.example
+
+# Base de datos local (SQLite)
+*.db
+*.db-journal
+
+# Sistema / editores
+.DS_Store
+Thumbs.db
+*.log

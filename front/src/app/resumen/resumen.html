@@ -1,0 +1,80 @@
+<div class="inicio">
+  <header class="cabecera">
+    <h1>🛒 Kiosco</h1>
+  </header>
+
+  @if (cargando()) {
+    <p class="cargando">Cargando…</p>
+  } @else if (datos(); as d) {
+    <!-- Hoy: el número grande -->
+    <section class="tarjeta destacada">
+      <span class="etiqueta">Hoy vendiste</span>
+      <span class="numerote">{{ d.hoy.total | currency: 'ARS' : 'symbol' : '1.0-0' }}</span>
+      <span class="sub">en {{ d.hoy.cantidad }} {{ d.hoy.cantidad === 1 ? 'venta' : 'ventas' }}</span>
+    </section>
+
+    <!-- Desglose por medio de pago (de hoy) -->
+    <section class="medios">
+      <div class="medio">
+        <span class="m-icono">💵</span>
+        <span class="m-label">Efectivo</span>
+        <span class="m-monto">{{ d.hoy.porMedio.efectivo | currency: 'ARS' : 'symbol' : '1.0-0' }}</span>
+      </div>
+      <div class="medio">
+        <span class="m-icono">📲</span>
+        <span class="m-label">Transferencia</span>
+        <span class="m-monto">{{ d.hoy.porMedio.transferencia | currency: 'ARS' : 'symbol' : '1.0-0' }}</span>
+      </div>
+      <div class="medio">
+        <span class="m-icono">📒</span>
+        <span class="m-label">Fiado</span>
+        <span class="m-monto">{{ d.hoy.porMedio.fiado | currency: 'ARS' : 'symbol' : '1.0-0' }}</span>
+      </div>
+    </section>
+
+    <!-- Semana -->
+    <section class="tarjeta semana">
+      <span class="etiqueta">Últimos 7 días</span>
+      <span class="numero">{{ d.semana.total | currency: 'ARS' : 'symbol' : '1.0-0' }}</span>
+      <span class="sub">en {{ d.semana.cantidad }} {{ d.semana.cantidad === 1 ? 'venta' : 'ventas' }}</span>
+    </section>
+
+    <!-- Día por día -->
+    <section class="tarjeta por-dia">
+      <span class="etiqueta">Venta por día</span>
+      <div class="barras">
+        @for (dia of d.porDia; track dia.fecha) {
+          <div class="barra-fila" [class.hoy]="dia.esHoy">
+            <span class="dia-nombre">{{ dia.etiqueta }}</span>
+            <div class="barra-pista">
+              <div class="barra-relleno" [style.width]="anchoBarra(dia.total)"></div>
+            </div>
+            <span class="dia-monto">{{ dia.total | currency: 'ARS' : 'symbol' : '1.0-0' }}</span>
+          </div>
+        }
+      </div>
+    </section>
+  } @else {
+    <p class="cargando">No se pudo cargar el resumen.</p>
+  }
+
+  <!-- Accesos rápidos -->
+  <nav class="accesos">
+    <a class="acceso vender" routerLink="/venta">
+      <span class="a-icono">🧾</span>
+      <span>Vender</span>
+    </a>
+    <a class="acceso" routerLink="/productos">
+      <span class="a-icono">📦</span>
+      <span>Productos y stock</span>
+    </a>
+    <a class="acceso" routerLink="/clientes">
+      <span class="a-icono">👥</span>
+      <span>Clientes y fiados</span>
+    </a>
+    <a class="acceso" routerLink="/historial">
+      <span class="a-icono">📜</span>
+      <span>Historial de ventas</span>
+    </a>
+  </nav>
+</div>

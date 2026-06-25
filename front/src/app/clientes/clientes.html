@@ -1,0 +1,65 @@
+<app-top-bar titulo="Clientes y fiados" />
+
+<div class="contenido">
+  <div class="barra">
+    <input
+      type="text"
+      placeholder="Buscar cliente…"
+      [value]="filtro()"
+      (input)="filtro.set($any($event.target).value)"
+      autocomplete="off"
+    />
+    <button type="button" class="nuevo" (click)="mostrarForm.set(true)">+ Nuevo</button>
+  </div>
+
+  @if (totalAdeudado() > 0) {
+    <div class="total-deuda">
+      Te deben en total
+      <strong>{{ totalAdeudado() | currency: 'ARS' : 'symbol' : '1.0-0' }}</strong>
+    </div>
+  }
+
+  @if (cargando()) {
+    <p class="vacio">Cargando…</p>
+  } @else if (visibles().length === 0) {
+    <p class="vacio">No hay clientes para mostrar.</p>
+  } @else {
+    <ul class="lista">
+      @for (c of visibles(); track c.id) {
+        <li class="item">
+          <a [routerLink]="['/clientes', c.id]" class="enlace">
+            <span class="nombre">👤 {{ c.nombre }}</span>
+            @if (c.saldo > 0) {
+              <span class="deuda">debe {{ c.saldo | currency: 'ARS' : 'symbol' : '1.0-0' }}</span>
+            } @else {
+              <span class="al-dia">al día</span>
+            }
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</div>
+
+<!-- Alta rápida -->
+@if (mostrarForm()) {
+  <div class="overlay" (click)="mostrarForm.set(false)">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2>Nuevo cliente</h2>
+      <label>
+        Nombre
+        <input type="text" [ngModel]="nombreNuevo()" (ngModelChange)="nombreNuevo.set($event)" />
+      </label>
+      <div class="modal-botones">
+        <button type="button" class="secundario" (click)="mostrarForm.set(false)">Cancelar</button>
+        <button type="button" class="primario" [disabled]="guardando()" (click)="crear()">Guardar</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (mensaje(); as m) {
+  <div class="toast" [class.error]="m.tipo === 'error'" [class.ok]="m.tipo === 'ok'">
+    {{ m.texto }}
+  </div>
+}

@@ -1,0 +1,92 @@
+<app-top-bar titulo="Cliente" />
+
+<div class="contenido">
+  @if (cargando()) {
+    <p class="vacio">Cargando…</p>
+  } @else if (detalle(); as c) {
+    <section class="cabecera">
+      <div class="nombre-row">
+        <h2>👤 {{ c.nombre }}</h2>
+        <button type="button" class="editar" (click)="abrirEdit()">editar</button>
+      </div>
+      <div class="saldo" [class.debe]="c.saldo > 0">
+        @if (c.saldo > 0) {
+          <span class="etiqueta">Debe</span>
+          <span class="monto">{{ c.saldo | currency: 'ARS' : 'symbol' : '1.0-0' }}</span>
+        } @else {
+          <span class="al-dia">✅ Está al día</span>
+        }
+      </div>
+      @if (c.saldo > 0) {
+        <button type="button" class="btn-pago" (click)="abrirPago()">Registrar pago</button>
+      }
+    </section>
+
+    <h3 class="titulo-hist">Historial</h3>
+    @if (c.historial.length === 0) {
+      <p class="vacio">Todavía no tiene movimientos.</p>
+    } @else {
+      <ul class="historial">
+        @for (h of c.historial; track $index) {
+          <li class="mov" [class.pago]="h.tipo === 'pago'">
+            <div class="mov-info">
+              <span class="mov-tipo">
+                {{ h.tipo === 'pago' ? '✅ Pago' : '🛒 Compra fiada' }}
+              </span>
+              <span class="mov-fecha">{{ h.fecha | date: 'short' }}</span>
+            </div>
+            <span class="mov-monto">
+              {{ h.tipo === 'pago' ? '−' : '+' }}{{ h.monto | currency: 'ARS' : 'symbol' : '1.0-0' }}
+            </span>
+          </li>
+        }
+      </ul>
+    }
+  } @else {
+    <p class="vacio">No se encontró el cliente.</p>
+  }
+</div>
+
+<!-- Modal pago -->
+@if (mostrarPago()) {
+  <div class="overlay" (click)="mostrarPago.set(false)">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2>Registrar pago</h2>
+      <p class="sub">Deuda actual: {{ detalle()?.saldo | currency: 'ARS' : 'symbol' : '1.0-0' }}</p>
+      <label>
+        ¿Cuánto paga?
+        <input type="number" inputmode="decimal" [ngModel]="montoPago()" (ngModelChange)="montoPago.set($event)" />
+      </label>
+      <button type="button" class="link" (click)="pagarTodo()">Pagar todo</button>
+      <div class="modal-botones">
+        <button type="button" class="secundario" (click)="mostrarPago.set(false)">Cancelar</button>
+        <button type="button" class="primario" [disabled]="procesando()" (click)="registrarPago()">
+          Confirmar pago
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal editar nombre -->
+@if (mostrarEdit()) {
+  <div class="overlay" (click)="mostrarEdit.set(false)">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2>Editar cliente</h2>
+      <label>
+        Nombre
+        <input type="text" [ngModel]="nombreEdit()" (ngModelChange)="nombreEdit.set($event)" />
+      </label>
+      <div class="modal-botones">
+        <button type="button" class="secundario" (click)="mostrarEdit.set(false)">Cancelar</button>
+        <button type="button" class="primario" (click)="guardarNombre()">Guardar</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (mensaje(); as m) {
+  <div class="toast" [class.error]="m.tipo === 'error'" [class.ok]="m.tipo === 'ok'">
+    {{ m.texto }}
+  </div>
+}

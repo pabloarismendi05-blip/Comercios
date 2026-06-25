@@ -1,0 +1,92 @@
+<app-top-bar titulo="Historial de ventas" />
+
+<div class="contenido">
+  <!-- Selector de día -->
+  <div class="selector">
+    <button type="button" [class.activo]="esHoy()" (click)="hoy()">Hoy</button>
+    <button type="button" (click)="ayer()">Ayer</button>
+    <input
+      type="date"
+      [value]="fecha()"
+      (change)="cambiarFecha($any($event.target).value)"
+    />
+  </div>
+
+  @if (cargando()) {
+    <p class="vacio">Cargando…</p>
+  } @else if (datos(); as d) {
+    <!-- Total del día -->
+    <section class="total-dia">
+      <span class="etiqueta">Total del día</span>
+      <span class="monto">{{ d.total | currency: 'ARS' : 'symbol' : '1.0-0' }}</span>
+      <span class="sub">{{ d.cantidad }} {{ d.cantidad === 1 ? 'venta' : 'ventas' }}</span>
+    </section>
+
+    @if (d.ventas.length === 0) {
+      <p class="vacio">No hubo ventas este día.</p>
+    } @else {
+      <ul class="lista">
+        @for (v of d.ventas; track v.id) {
+          <li class="venta" (click)="abrirDetalle(v.id)">
+            <span class="hora">{{ v.fechaHora | date: 'HH:mm' }}</span>
+            <div class="medio">
+              <span class="m-icono">{{ iconoMedio(v.medioPago) }}</span>
+              <span class="m-texto">
+                {{ v.medioPago }}
+                @if (v.clienteNombre) {
+                  · {{ v.clienteNombre }}
+                }
+              </span>
+            </div>
+            <span class="total">{{ v.total | currency: 'ARS' : 'symbol' : '1.0-0' }}</span>
+          </li>
+        }
+      </ul>
+    }
+  } @else {
+    <p class="vacio">No se pudo cargar el historial.</p>
+  }
+</div>
+
+<!-- Detalle de una venta -->
+@if (cargandoDetalle() || detalle()) {
+  <div class="overlay" (click)="cerrarDetalle()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      @if (cargandoDetalle()) {
+        <p class="vacio">Cargando…</p>
+      } @else if (detalle(); as v) {
+        <div class="det-cabecera">
+          <h2>Venta #{{ v.id }}</h2>
+          <span class="det-hora">{{ v.fechaHora | date: 'short' }}</span>
+        </div>
+        <p class="det-medio">
+          {{ iconoMedio(v.medioPago) }} {{ v.medioPago }}
+          @if (v.clienteNombre) {
+            — {{ v.clienteNombre }}
+          }
+        </p>
+
+        <ul class="det-items">
+          @for (it of v.items; track $index) {
+            <li>
+              <div class="it-info">
+                <span class="it-nombre">{{ it.nombre }}</span>
+                <span class="it-detalle">
+                  {{ it.cantidad }} × {{ it.precioUnitario | currency: 'ARS' : 'symbol' : '1.0-0' }}
+                </span>
+              </div>
+              <span class="it-subtotal">{{ it.subtotal | currency: 'ARS' : 'symbol' : '1.0-0' }}</span>
+            </li>
+          }
+        </ul>
+
+        <div class="det-total">
+          <span>Total</span>
+          <span>{{ v.total | currency: 'ARS' : 'symbol' : '1.0-0' }}</span>
+        </div>
+
+        <button type="button" class="cerrar" (click)="cerrarDetalle()">Cerrar</button>
+      }
+    </div>
+  </div>
+}

@@ -1,0 +1,107 @@
+<app-top-bar titulo="Productos y stock" />
+
+<div class="contenido">
+  <!-- Búsqueda + acciones -->
+  <div class="barra">
+    <input
+      type="text"
+      placeholder="Buscar producto…"
+      [value]="filtro()"
+      (input)="filtro.set($any($event.target).value)"
+      autocomplete="off"
+    />
+    <button type="button" class="nuevo" (click)="nuevo()">+ Nuevo</button>
+  </div>
+
+  <button
+    type="button"
+    class="chip-reponer"
+    [class.activo]="soloReponer()"
+    (click)="toggleReponer()"
+  >
+    @if (soloReponer()) {
+      Ver todos
+    } @else {
+      ⚠ Solo reponer ({{ cantReponer() }})
+    }
+  </button>
+
+  @if (cargando()) {
+    <p class="vacio">Cargando…</p>
+  } @else if (visibles().length === 0) {
+    <p class="vacio">No hay productos para mostrar.</p>
+  } @else {
+    <ul class="lista">
+      @for (p of visibles(); track p.id) {
+        <li class="item" [class.alerta]="hayQueReponer(p)" (click)="editar(p)">
+          <div class="datos">
+            <span class="nombre">{{ p.nombre }}</span>
+            <span class="precio">{{ p.precioVenta | currency: 'ARS' : 'symbol' : '1.0-0' }}</span>
+          </div>
+          <div class="stock">
+            <span class="cantidad" [class.bajo]="hayQueReponer(p)">{{ p.stockActual }}</span>
+            @if (hayQueReponer(p)) {
+              <span class="reponer">reponer</span>
+            } @else {
+              <span class="en-stock">en stock</span>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</div>
+
+<!-- Formulario alta/edición -->
+@if (mostrarForm() && form(); as f) {
+  <div class="overlay" (click)="mostrarForm.set(false)">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2>{{ f.id ? 'Editar producto' : 'Nuevo producto' }}</h2>
+
+      <label>
+        Nombre
+        <input type="text" [ngModel]="f.nombre" (ngModelChange)="f.nombre = $event" />
+      </label>
+
+      <div class="fila">
+        <label>
+          Precio de venta
+          <input type="number" inputmode="decimal" [ngModel]="f.precioVenta" (ngModelChange)="f.precioVenta = $event" />
+        </label>
+        <label>
+          Precio de costo
+          <input type="number" inputmode="decimal" [ngModel]="f.precioCosto" (ngModelChange)="f.precioCosto = $event" />
+        </label>
+      </div>
+
+      <div class="fila">
+        <label>
+          Stock actual
+          <input type="number" inputmode="numeric" [ngModel]="f.stockActual" (ngModelChange)="f.stockActual = $event" />
+        </label>
+        <label>
+          Stock mínimo
+          <input type="number" inputmode="numeric" [ngModel]="f.stockMinimo" (ngModelChange)="f.stockMinimo = $event" />
+        </label>
+      </div>
+
+      <label>
+        Código de barras (opcional)
+        <input type="text" [ngModel]="f.codigoBarras" (ngModelChange)="f.codigoBarras = $event" />
+      </label>
+
+      <div class="modal-botones">
+        <button type="button" class="secundario" (click)="mostrarForm.set(false)">Cancelar</button>
+        <button type="button" class="primario" [disabled]="guardando()" (click)="guardar()">
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (mensaje(); as m) {
+  <div class="toast" [class.error]="m.tipo === 'error'" [class.ok]="m.tipo === 'ok'">
+    {{ m.texto }}
+  </div>
+}
