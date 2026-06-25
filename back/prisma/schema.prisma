@@ -1,17 +1,15 @@
 // Modelo de datos del sistema de kioscos.
 //
-// DESARROLLO: SQLite (provider abajo = "sqlite").
-// PRODUCCIÓN: cambiar a provider = "postgresql" y ajustar DATABASE_URL.
-//   Nota: en SQLite no existen enums ni Decimal nativo de Postgres, por eso
-//   medio_pago y tipo se guardan como String (con valores controlados desde
-//   el código). Al migrar a Postgres se pueden convertir a enum si se quiere.
+// Base de datos: PostgreSQL (en producción: Neon; en local: la misma URL vía .env).
+//   Nota: medio_pago y tipo se guardan como String (con valores controlados
+//   desde el código) por simplicidad. Se podrían convertir a enum más adelante.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
