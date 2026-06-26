@@ -113,11 +113,25 @@ export class Scanner implements AfterViewInit, OnDestroy {
       BarcodeFormat.CODE_128,
       BarcodeFormat.CODE_39,
     ]);
-    const lector = new BrowserMultiFormatReader(hints);
+    // delayBetweenScanAttempts bajo = intenta leer muchas veces por segundo,
+    // así "toma" el código apenas entra en cuadro, sin esperar.
+    const lector = new BrowserMultiFormatReader(hints, {
+      delayBetweenScanAttempts: 100,
+    });
+
+    // Forzamos la cámara TRASERA y buena resolución; el enfoque continuo lo
+    // pedimos después sobre el track (no todos los celus lo aceptan en constraints).
+    const constraints: MediaStreamConstraints = {
+      video: {
+        facingMode: { ideal: 'environment' },
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+      },
+    };
 
     try {
-      this.controles = await lector.decodeFromVideoDevice(
-        undefined, // cámara por defecto (trasera en el celu)
+      this.controles = await lector.decodeFromConstraints(
+        constraints,
         this.video().nativeElement,
         (resultado) => {
           if (resultado) {
@@ -127,6 +141,8 @@ export class Scanner implements AfterViewInit, OnDestroy {
           }
         }
       );
+      // Pedir enfoque automático continuo si la cámara lo soporta.
+      this.activarEnfoqueContinuo();
     } catch (e: any) {
       // Permiso denegado, sin cámara, o contexto no seguro (sin HTTPS).
       if (e?.name === 'NotAllowedError') {
@@ -136,6 +152,24 @@ export class Scanner implements AfterViewInit, OnDestroy {
       } else {
         this.error.set('No se pudo abrir la cámara. Probá desde el celular.');
       }
+    }
+  }
+
+  // Pide a la cámara enfoque automático continuo, así no hay que tocar la
+  // pantalla para que enfoque. Si el dispositivo no lo soporta, no pasa nada.
+  private async activarEnfoqueContinuo() {
+    try {
+      const stream = this.video().nativeElement.srcObject as MediaStream | null;
+      const track = stream?.getVideoTracks?.()[0];
+      if (!track) return;
+      const caps = track.getCapabilities?.() as any;
+      if (caps?.focusMode?.includes?.('continuous')) {
+        await track.applyConstraints({
+          advanced: [{ focusMode: 'continuous' } as any],
+        });
+      }
+    } catch {
+      // Algunos celulares no permiten cambiar el enfoque: lo ignoramos.
     }
   }
 
