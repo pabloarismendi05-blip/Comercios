@@ -1,0 +1,267 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+  background: #f5f6f8;
+  color: #1f2933;
+  font-family: 'Segoe UI', Roboto, -apple-system, sans-serif;
+}
+
+.contenido {
+  max-width: 540px;
+  margin: 0 auto;
+  padding: 0.75rem 0.75rem 2rem;
+}
+
+.vacio {
+  text-align: center;
+  color: #829ab1;
+  padding: 2rem;
+}
+
+.tarjeta {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.1rem 1.25rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  margin-bottom: 1rem;
+}
+.tarjeta h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+}
+
+/* ── Total del día + desglose por medio ── */
+.total-dia {
+  text-align: center;
+}
+.total-dia .etiqueta {
+  color: #627d98;
+  font-size: 0.9rem;
+}
+.total-dia .numerote {
+  display: block;
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: 0.1rem 0 0.9rem;
+}
+.total-dia .medios {
+  display: flex;
+  gap: 0.5rem;
+}
+.total-dia .medio {
+  flex: 1;
+  background: #f5f8fb;
+  border-radius: 12px;
+  padding: 0.6rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.total-dia .m-icono {
+  font-size: 1.2rem;
+}
+.total-dia .m-label {
+  font-size: 0.75rem;
+  color: #829ab1;
+}
+.total-dia .m-monto {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.total-dia .aclaracion {
+  margin: 0.9rem 0 0;
+  font-size: 0.82rem;
+  color: #829ab1;
+  line-height: 1.3;
+}
+
+.ultimo {
+  text-align: center;
+  color: #829ab1;
+  font-size: 0.85rem;
+  margin: 0.25rem 0 0;
+}
+.sin-act {
+  color: #829ab1;
+  margin: 0;
+}
+
+/* ── Desglose ── */
+.renglones {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.renglones li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eef1f4;
+  color: #486581;
+}
+.suma {
+  font-weight: 700;
+  color: #0a8754;
+}
+.resta {
+  font-weight: 700;
+  color: #b04632;
+}
+.esperado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.85rem;
+  padding-top: 0.5rem;
+}
+.esperado span {
+  color: #627d98;
+}
+.esperado strong {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+/* ── Acciones (chips) ── */
+.acciones {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.chip {
+  flex: 1;
+  border: 2px solid #d9e2ec;
+  background: #fff;
+  color: #486581;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 0.7rem 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* ── Contar la caja ── */
+label {
+  display: block;
+  margin: 0.25rem 0 0.4rem;
+  color: #627d98;
+  font-size: 0.95rem;
+}
+input[type='number'],
+input[type='text'] {
+  width: 100%;
+  box-sizing: border-box;
+  border: 2px solid #d9e2ec;
+  border-radius: 12px;
+  padding: 0.75rem;
+  font-size: 1.2rem;
+  outline: none;
+}
+input:focus {
+  border-color: #2680c2;
+}
+
+.preview {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: 10px;
+  font-weight: 700;
+  text-align: center;
+  background: #eef1f4;
+  color: #486581;
+}
+.preview.sobra {
+  background: #e3f4ec;
+  color: #0a8754;
+}
+.preview.falta {
+  background: #fbe7e1;
+  color: #b04632;
+}
+
+.error {
+  color: #b04632;
+  font-weight: 600;
+  margin: 0.5rem 0 0;
+}
+
+.primario {
+  width: 100%;
+  margin-top: 1rem;
+  border: none;
+  border-radius: 12px;
+  background: #0a8754;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0.95rem;
+}
+.primario:disabled {
+  opacity: 0.6;
+}
+.secundario {
+  border: none;
+  border-radius: 12px;
+  background: #eef1f4;
+  color: #486581;
+  font-weight: 700;
+  padding: 0.95rem;
+  flex: 1;
+}
+
+/* ── Resultado del cierre ── */
+.resultado .reng {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  color: #486581;
+}
+.resultado .reng.grande {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1f2933;
+  border-top: 1px solid #eef1f4;
+  margin-top: 0.3rem;
+  padding-top: 0.6rem;
+}
+.resultado.sobra .reng.grande {
+  color: #0a8754;
+}
+.resultado.falta .reng.grande {
+  color: #b04632;
+}
+.resultado .hora {
+  margin: 0.5rem 0 0;
+  color: #829ab1;
+  font-size: 0.85rem;
+}
+
+/* ── Modal ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 50;
+}
+.modal {
+  width: 100%;
+  max-width: 540px;
+  background: #fff;
+  border-radius: 18px 18px 0 0;
+  padding: 1.25rem 1.25rem 1.75rem;
+}
+.modal h2 {
+  margin: 0 0 0.75rem;
+}
+.modal-acciones {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+}
+.modal-acciones .primario {
+  margin-top: 0;
+  flex: 1;
+}

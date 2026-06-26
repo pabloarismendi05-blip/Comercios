@@ -110,6 +110,42 @@ export interface VentaDetalle {
   items: VentaItemDetalle[];
 }
 
+// ── Caja / cierre ──
+export type TipoMovimientoCaja = 'apertura' | 'gasto' | 'retiro';
+
+// Un cierre ya hecho (snapshot congelado).
+export interface CierreInfo {
+  fecha: string;
+  efectivoEsperado: number;
+  efectivoContado: number;
+  diferencia: number;
+  createdAt: string;
+}
+
+// La caja "abierta" = todo lo que pasó desde el último cierre.
+export interface CajaAbierta {
+  desde: string | null;
+  apertura: number;
+  ventasEfectivo: number;
+  ventasTransferencia: number;
+  ventasFiado: number;
+  cobrosFiado: number;
+  gastos: number;
+  retiros: number;
+  totalVendido: number;
+  efectivoEsperado: number;
+  hayActividad: boolean;
+}
+
+export interface EstadoCaja {
+  abierta: CajaAbierta;
+  ultimoCierre: CierreInfo | null;
+}
+
+export interface CierreResultado extends CierreInfo {
+  ok: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private http = inject(HttpClient);
@@ -169,5 +205,26 @@ export class ApiService {
   }
   ventaDetalle(id: number): Observable<VentaDetalle> {
     return this.http.get<VentaDetalle>(`${API}/ventas/${id}`);
+  }
+
+  // ── Caja / cierre ──
+  estadoCaja(): Observable<EstadoCaja> {
+    return this.http.get<EstadoCaja>(`${API}/caja/cierre`);
+  }
+  registrarMovimientoCaja(
+    tipo: TipoMovimientoCaja,
+    monto: number,
+    descripcion?: string
+  ): Observable<{ ok: boolean }> {
+    return this.http.post<{ ok: boolean }>(`${API}/caja/movimiento`, {
+      tipo,
+      monto,
+      descripcion,
+    });
+  }
+  cerrarCaja(efectivoContado: number): Observable<CierreResultado> {
+    return this.http.post<CierreResultado>(`${API}/caja/cierre`, {
+      efectivoContado,
+    });
   }
 }

@@ -5,6 +5,7 @@ import { Productos } from './productos/productos';
 import { Clientes } from './clientes/clientes';
 import { ClienteDetalle } from './cliente-detalle/cliente-detalle';
 import { Historial } from './historial/historial';
+import { Cierre } from './cierre/cierre';
 
 export const routes: Routes = [
   // El inicio es el resumen del día (lo primero que mira el dueño).
@@ -14,5 +15,6 @@ export const routes: Routes = [
   { path: 'clientes', component: Clientes },
   { path: 'clientes/:id', component: ClienteDetalle },
   { path: 'historial', component: Historial },
+  { path: 'cierre', component: Cierre },
   { path: '**', redirectTo: '' },
 ];

@@ -1,0 +1,178 @@
+<app-top-bar titulo="Cierre de caja"></app-top-bar>
+
+<div class="contenido">
+  @if (cargando()) {
+    <p class="vacio">Cargando…</p>
+  } @else if (recienCerrado(); as r) {
+    <!-- Confirmación del cierre recién hecho -->
+    <section class="tarjeta resultado" [class.sobra]="r.diferencia > 0" [class.falta]="r.diferencia < 0">
+      <h2>Caja cerrada ✓</h2>
+      <div class="reng">
+        <span>Contaste</span>
+        <span>{{ r.efectivoContado | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+      </div>
+      <div class="reng">
+        <span>Debía haber</span>
+        <span>{{ r.efectivoEsperado | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+      </div>
+      <div class="reng grande">
+        <span>
+          @if (r.diferencia > 0) { Sobró }
+          @else if (r.diferencia < 0) { Faltó }
+          @else { Cuadró justo }
+        </span>
+        <span>{{ (r.diferencia < 0 ? -r.diferencia : r.diferencia) | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+      </div>
+      <button class="primario" (click)="ocultarConfirmacion()">Listo</button>
+    </section>
+  } @else if (abierta(); as a) {
+
+    <!-- ① Total del día (lo vendido, sin importar cómo se cobró) -->
+    <section class="tarjeta total-dia">
+      <span class="etiqueta">Total vendido</span>
+      <span class="numerote">{{ a.totalVendido | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+      <div class="medios">
+        <div class="medio">
+          <span class="m-icono">💵</span>
+          <span class="m-label">Efectivo</span>
+          <span class="m-monto">{{ a.ventasEfectivo | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+        </div>
+        <div class="medio">
+          <span class="m-icono">📲</span>
+          <span class="m-label">Transferencia</span>
+          <span class="m-monto">{{ a.ventasTransferencia | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+        </div>
+        @if (a.ventasFiado > 0) {
+          <div class="medio">
+            <span class="m-icono">📒</span>
+            <span class="m-label">Fiado</span>
+            <span class="m-monto">{{ a.ventasFiado | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+          </div>
+        }
+      </div>
+      <p class="aclaracion">
+        Lo de transferencia ya está en tu cuenta. En la caja contás solo el efectivo. 👇
+      </p>
+    </section>
+
+    <!-- ② Caja: el efectivo que debería estar en el cajón -->
+    <section class="tarjeta desglose">
+      <h2>Efectivo en caja</h2>
+      <ul class="renglones">
+        <li>
+          <span>Fondo de caja</span>
+          <span class="suma">+ {{ a.apertura | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+        </li>
+        <li>
+          <span>Ventas en efectivo</span>
+          <span class="suma">+ {{ a.ventasEfectivo | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+        </li>
+        <li>
+          <span>Cobros de fiado</span>
+          <span class="suma">+ {{ a.cobrosFiado | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+        </li>
+        <li>
+          <span>Gastos</span>
+          <span class="resta">− {{ a.gastos | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+        </li>
+        <li>
+          <span>Retiros</span>
+          <span class="resta">− {{ a.retiros | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+        </li>
+      </ul>
+      <div class="esperado">
+        <span>Debería haber en caja</span>
+        <strong>{{ a.efectivoEsperado | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</strong>
+      </div>
+    </section>
+
+    <!-- Botones para cargar movimientos a mano -->
+    <div class="acciones">
+      <button class="chip" (click)="abrirMov('apertura')">+ Fondo de caja</button>
+      <button class="chip" (click)="abrirMov('gasto')">− Gasto</button>
+      <button class="chip" (click)="abrirMov('retiro')">− Retiro</button>
+    </div>
+
+    <!-- Contar y cerrar -->
+    <section class="tarjeta cerrar-form">
+      <h2>Contar la caja</h2>
+      @if (!a.hayActividad) {
+        <p class="sin-act">Todavía no hay movimientos en esta caja.</p>
+      } @else {
+        <label for="contado">¿Cuánto efectivo hay en la caja?</label>
+        <input
+          id="contado"
+          type="number"
+          inputmode="numeric"
+          placeholder="0"
+          [ngModel]="contado()"
+          (ngModelChange)="contado.set($event)"
+        />
+
+        @if (diferencia(); as dif) {
+          <div class="preview" [class.sobra]="dif > 0" [class.falta]="dif < 0">
+            @if (dif > 0) { Va a sobrar {{ dif | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }} }
+            @else if (dif < 0) { Va a faltar {{ -dif | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }} }
+            @else { Cuadra justo }
+          </div>
+        }
+
+        @if (error()) {
+          <p class="error">{{ error() }}</p>
+        }
+
+        <button class="primario" [disabled]="guardando()" (click)="cerrarCaja()">
+          {{ guardando() ? 'Cerrando…' : 'Cerrar caja' }}
+        </button>
+      }
+    </section>
+
+    <!-- Referencia: último cierre hecho -->
+    @if (estado()?.ultimoCierre; as uc) {
+      <p class="ultimo">
+        Último cierre: {{ uc.createdAt | date: 'dd/MM HH:mm' }} —
+        @if (uc.diferencia > 0) { sobró {{ uc.diferencia | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }} }
+        @else if (uc.diferencia < 0) { faltó {{ -uc.diferencia | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }} }
+        @else { cuadró justo }
+      </p>
+    }
+
+  } @else {
+    <p class="vacio">No se pudo cargar la caja.</p>
+  }
+</div>
+
+<!-- Modal: cargar movimiento manual -->
+@if (movAbierto()) {
+  <div class="overlay" (click)="cerrarMov()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2>{{ tituloMov() }}</h2>
+      <label for="mov-monto">Monto</label>
+      <input
+        id="mov-monto"
+        type="number"
+        inputmode="numeric"
+        placeholder="0"
+        [ngModel]="movMonto()"
+        (ngModelChange)="movMonto.set($event)"
+      />
+      <label for="mov-desc">Detalle (opcional)</label>
+      <input
+        id="mov-desc"
+        type="text"
+        placeholder="Ej: pago al proveedor"
+        [ngModel]="movDescripcion()"
+        (ngModelChange)="movDescripcion.set($event)"
+      />
+      @if (error()) {
+        <p class="error">{{ error() }}</p>
+      }
+      <div class="modal-acciones">
+        <button class="secundario" (click)="cerrarMov()">Cancelar</button>
+        <button class="primario" [disabled]="guardando()" (click)="guardarMov()">
+          {{ guardando() ? 'Guardando…' : 'Guardar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
