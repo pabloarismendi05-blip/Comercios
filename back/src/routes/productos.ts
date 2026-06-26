@@ -76,6 +76,21 @@ productosRouter.get("/productos", async (req, res) => {
   res.json(productos.map(aPlano));
 });
 
+// Buscar un producto por código de barras EXACTO (para el escáner de la cámara).
+// Devuelve el producto o 404 si ese código no está cargado.
+productosRouter.get("/productos/codigo/:codigo", async (req, res) => {
+  const empresaId = req.empresaId;
+  const codigo = String(req.params.codigo ?? "").trim();
+  if (!codigo) return res.status(400).json({ error: "Falta el código." });
+
+  const p = await prisma.producto.findFirst({
+    where: { empresaId, codigoBarras: codigo },
+  });
+  if (!p) return res.status(404).json({ error: "No hay ningún producto con ese código." });
+
+  res.json(aPlano(p));
+});
+
 // Crear producto.
 productosRouter.post("/productos", async (req, res) => {
   const empresaId = req.empresaId;
