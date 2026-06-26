@@ -11,6 +11,9 @@
       (focus)="onFocus()"
       autocomplete="off"
     />
+    <button type="button" class="btn-escanear" (click)="abrirScanner()" aria-label="Escanear código">
+      📷
+    </button>
     <button type="button" class="btn-manual" (click)="abrirManual()">
       + Venta rápida
     </button>
@@ -231,5 +234,17 @@
     <div class="toast" [class.error]="m.tipo === 'error'" [class.ok]="m.tipo === 'ok'">
       {{ m.texto }}
     </div>
+  }
+
+  <!-- Escáner de código de barras (cámara).
+       Con @defer, la librería del lector se baja recién al abrir el escáner,
+       así no pesa en la carga inicial de la app. -->
+  @defer (when escaneando()) {
+    @if (escaneando()) {
+      <app-scanner
+        (codigo)="onCodigoEscaneado($event)"
+        (cerrar)="cerrarScanner()"
+      ></app-scanner>
+    }
   }
 </div>

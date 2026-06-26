@@ -164,6 +164,9 @@ export class ApiService {
     if (soloReponer) params['soloReponer'] = '1';
     return this.http.get<Producto[]>(`${API}/productos`, { params });
   }
+  productoPorCodigo(codigo: string): Observable<Producto> {
+    return this.http.get<Producto>(`${API}/productos/codigo/${encodeURIComponent(codigo)}`);
+  }
   crearProducto(p: ProductoInput): Observable<Producto> {
     return this.http.post<Producto>(`${API}/productos`, p);
   }

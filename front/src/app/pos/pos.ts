@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { Scanner } from '../shared/scanner';
 import {
   ApiService,
   Producto,
@@ -25,7 +26,7 @@ type Paso = 'venta' | 'cobro' | 'fiado';
 
 @Component({
   selector: 'app-pos',
-  imports: [FormsModule, CurrencyPipe, RouterLink],
+  imports: [FormsModule, CurrencyPipe, RouterLink, Scanner],
   templateUrl: './pos.html',
   styleUrl: './pos.scss',
 })
@@ -42,6 +43,9 @@ export class Pos {
   catalogo = signal<Producto[]>([]);
   // Si el buscador está enfocado: mostramos la lista de productos completa.
   enfocado = signal(false);
+
+  // ── Escáner de código de barras (cámara) ──
+  escaneando = signal(false);
 
   // ── Estado del ticket ──
   ticket = signal<TicketItem[]>([]);
@@ -91,6 +95,33 @@ export class Pos {
 
   cerrarLista() {
     this.enfocado.set(false);
+  }
+
+  // ───────────────────── Escáner (cámara) ─────────────────────
+
+  abrirScanner() {
+    this.escaneando.set(true);
+  }
+
+  cerrarScanner() {
+    this.escaneando.set(false);
+  }
+
+  // Llega un código leído por la cámara: busco el producto y lo agrego.
+  onCodigoEscaneado(codigo: string) {
+    this.escaneando.set(false);
+    this.api.productoPorCodigo(codigo).subscribe({
+      next: (p) => {
+        this.agregar(p);
+        this.notificar('ok', `✅ ${p.nombre} agregado`);
+      },
+      error: () => {
+        // No está cargado: dejo el código en el buscador para crearlo/buscarlo.
+        this.query.set(codigo);
+        this.resultados.set([]);
+        this.notificar('error', `Sin producto con código ${codigo}`);
+      },
+    });
   }
 
   onBuscar(valor: string) {
