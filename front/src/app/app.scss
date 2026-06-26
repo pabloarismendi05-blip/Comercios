@@ -6,6 +6,36 @@
   color: #1f2933;
 }
 
+/* Cartel de "hay versión nueva" (auto-update de la PWA) */
+.aviso-update {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: #0a8754;
+  color: #fff;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.18);
+}
+.aviso-update span {
+  font-weight: 600;
+}
+.aviso-update button {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 10px;
+  background: #fff;
+  color: #0a8754;
+  font-weight: 800;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+}
+
 .bienvenida {
   max-width: 480px;
   margin: 0 auto;

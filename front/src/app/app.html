@@ -1,1 +1,7 @@
+@if (hayActualizacion()) {
+  <div class="aviso-update">
+    <span>Hay una versión nueva 🎉</span>
+    <button type="button" (click)="actualizar()">Actualizar</button>
+  </div>
+}
 <router-outlet />
