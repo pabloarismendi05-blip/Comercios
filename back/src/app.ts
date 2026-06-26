@@ -6,6 +6,7 @@ import { productosRouter } from "./routes/productos.js";
 import { clientesRouter } from "./routes/clientes.js";
 import { ventasRouter } from "./routes/ventas.js";
 import { resumenRouter } from "./routes/resumen.js";
+import { cajaRouter } from "./routes/caja.js";
 
 export function createApp() {
   const app = express();
@@ -25,6 +26,7 @@ export function createApp() {
   app.use("/api", productosRouter);
   app.use("/api", clientesRouter);
   app.use("/api", ventasRouter);
+  app.use("/api", cajaRouter);
 
   return app;
 }

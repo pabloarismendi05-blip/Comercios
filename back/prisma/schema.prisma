@@ -23,6 +23,7 @@ model Empresa {
   clientes    Cliente[]
   ventas      Venta[]
   movimientos MovimientoCaja[]
+  cierres     CierreCaja[]
 
   @@map("empresas")
 }
@@ -97,6 +98,32 @@ model VentaItem {
 
   @@index([ventaId])
   @@map("venta_items")
+}
+
+// ── Cierre de caja (arqueo). ──
+// Cada cierre "corta" la caja en un momento: lo que pasó DESPUÉS de este cierre
+// arranca la caja siguiente. Queda guardado cuánto debería haber (según el
+// sistema), cuánto se contó de verdad, y la diferencia.
+model CierreCaja {
+  id               Int      @id @default(autoincrement())
+  empresaId        Int      @map("empresa_id")
+  // Día del cierre como clave AAAA-MM-DD (hora local), solo para mostrar.
+  fecha            String
+  // Lo que el sistema calculó que debería haber en efectivo al cerrar.
+  efectivoEsperado Decimal  @map("efectivo_esperado")
+  // Lo que el kiosquero contó físicamente.
+  efectivoContado  Decimal  @map("efectivo_contado")
+  // contado - esperado. Positivo = sobra; negativo = falta.
+  diferencia       Decimal
+  // El momento exacto del cierre es el corte: marca el fin de una caja y el
+  // arranque de la siguiente.
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  empresa Empresa @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId])
+  @@index([empresaId, createdAt])
+  @@map("cierres_caja")
 }
 
 model MovimientoCaja {
