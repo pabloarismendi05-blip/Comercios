@@ -47,6 +47,14 @@ export class Pos {
   // ── Escáner de código de barras (cámara) ──
   escaneando = signal(false);
 
+  // ── Alta rápida de producto (cuando se escanea un código no cargado) ──
+  codigoNuevo = signal<string | null>(null);
+  nuevoNombre = signal('');
+  nuevoPrecio = signal<number | null>(null);
+  nuevoStock = signal<number | null>(null);
+  creandoProd = signal(false);
+  error = signal('');
+
   // ── Estado del ticket ──
   ticket = signal<TicketItem[]>([]);
   total = computed(() =>
@@ -116,12 +124,66 @@ export class Pos {
         this.notificar('ok', `✅ ${p.nombre} agregado`);
       },
       error: () => {
-        // No está cargado: dejo el código en el buscador para crearlo/buscarlo.
-        this.query.set(codigo);
-        this.resultados.set([]);
-        this.notificar('error', `Sin producto con código ${codigo}`);
+        // No está cargado: ofrezco crearlo al toque, con el código ya puesto.
+        this.abrirAltaRapida(codigo);
       },
     });
+  }
+
+  // ───────────── Alta rápida de producto (desde el escáner) ─────────────
+
+  abrirAltaRapida(codigo: string) {
+    this.codigoNuevo.set(codigo);
+    this.nuevoNombre.set('');
+    this.nuevoPrecio.set(null);
+    this.nuevoStock.set(null);
+    this.error.set('');
+  }
+
+  cancelarAltaRapida() {
+    this.codigoNuevo.set(null);
+  }
+
+  guardarNuevoProducto() {
+    const codigo = this.codigoNuevo();
+    if (!codigo) return;
+    const nombre = this.nuevoNombre().trim();
+    const precio = this.nuevoPrecio();
+    const stock = this.nuevoStock() ?? 0;
+
+    if (!nombre) {
+      this.error.set('Ponele un nombre al producto.');
+      return;
+    }
+    if (precio === null || !Number.isFinite(precio) || precio <= 0) {
+      this.error.set('Ponele el precio de venta.');
+      return;
+    }
+
+    this.creandoProd.set(true);
+    this.error.set('');
+    this.api
+      .crearProducto({
+        nombre,
+        precioVenta: precio,
+        precioCosto: 0, // se completa después en Productos si hace falta
+        stockActual: Number.isInteger(stock) && stock > 0 ? stock : 0,
+        stockMinimo: 0,
+        codigoBarras: codigo,
+      })
+      .subscribe({
+        next: (p) => {
+          this.creandoProd.set(false);
+          this.codigoNuevo.set(null);
+          this.agregar(p);
+          this.catalogo.update((c) => [...c, p]);
+          this.notificar('ok', `✅ ${p.nombre} creado y agregado`);
+        },
+        error: (e) => {
+          this.creandoProd.set(false);
+          this.error.set(e?.error?.error ?? 'No se pudo crear el producto.');
+        },
+      });
   }
 
   onBuscar(valor: string) {

@@ -10,6 +10,7 @@
       (input)="filtro.set($any($event.target).value)"
       autocomplete="off"
     />
+    <button type="button" class="escanear" (click)="abrirScanner()" aria-label="Escanear código">📷</button>
     <button type="button" class="nuevo" (click)="nuevo()">+ Nuevo</button>
   </div>
 
@@ -104,4 +105,14 @@
   <div class="toast" [class.error]="m.tipo === 'error'" [class.ok]="m.tipo === 'ok'">
     {{ m.texto }}
   </div>
+}
+
+<!-- Escáner de código de barras (cámara), carga diferida -->
+@defer (when escaneando()) {
+  @if (escaneando()) {
+    <app-scanner
+      (codigo)="onCodigoEscaneado($event)"
+      (cerrar)="cerrarScanner()"
+    ></app-scanner>
+  }
 }

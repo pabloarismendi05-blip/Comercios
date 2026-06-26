@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CurrencyPipe } from '@angular/common';
 import { TopBar } from '../shared/top-bar';
+import { Scanner } from '../shared/scanner';
 import { ApiService, Producto, ProductoInput } from '../services/api.service';
 
 // Estado del formulario (alta o edición).
@@ -17,7 +18,7 @@ interface FormProducto {
 
 @Component({
   selector: 'app-productos',
-  imports: [FormsModule, CurrencyPipe, TopBar],
+  imports: [FormsModule, CurrencyPipe, TopBar, Scanner],
   templateUrl: './productos.html',
   styleUrl: './productos.scss',
 })
@@ -34,6 +35,9 @@ export class Productos {
   mostrarForm = signal(false);
   form = signal<FormProducto | null>(null);
   guardando = signal(false);
+
+  // Escáner de código de barras (cámara).
+  escaneando = signal(false);
 
   // Filtrado en vivo por nombre sobre lo que ya trajimos.
   visibles = computed(() => {
@@ -82,6 +86,39 @@ export class Productos {
       codigoBarras: '',
     });
     this.mostrarForm.set(true);
+  }
+
+  // ── Escáner (cámara): dar de alta o editar escaneando el código ──
+  abrirScanner() {
+    this.escaneando.set(true);
+  }
+
+  cerrarScanner() {
+    this.escaneando.set(false);
+  }
+
+  onCodigoEscaneado(codigo: string) {
+    this.escaneando.set(false);
+    this.api.productoPorCodigo(codigo).subscribe({
+      // Ya existe: abro su ficha para editarlo.
+      next: (p) => {
+        this.notificar('ok', `Ese código ya es de "${p.nombre}".`);
+        this.editar(p);
+      },
+      // No existe: abro el alta con el código ya cargado.
+      error: () => {
+        this.form.set({
+          id: null,
+          nombre: '',
+          precioVenta: null,
+          precioCosto: null,
+          stockActual: null,
+          stockMinimo: null,
+          codigoBarras: codigo,
+        });
+        this.mostrarForm.set(true);
+      },
+    });
   }
 
   editar(p: Producto) {

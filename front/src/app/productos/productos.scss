@@ -37,6 +37,15 @@
   padding: 0 1rem;
   font-size: 0.95rem;
 }
+.escanear {
+  flex-shrink: 0;
+  border: none;
+  background: #e3f4ec;
+  border-radius: 12px;
+  padding: 0 0.85rem;
+  font-size: 1.2rem;
+  line-height: 1;
+}
 
 .chip-reponer {
   border: none;

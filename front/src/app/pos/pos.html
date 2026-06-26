@@ -247,4 +247,55 @@
       ></app-scanner>
     }
   }
+
+  <!-- Modal: alta rápida de producto escaneado que no estaba cargado -->
+  @if (codigoNuevo(); as codigo) {
+    <div class="overlay" (click)="cancelarAltaRapida()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h2>Producto nuevo</h2>
+        <p class="sub">Leí este código pero no está cargado. Cargalo y queda en la venta.</p>
+        <p class="codigo-leido">📷 {{ codigo }}</p>
+        <label>
+          Nombre
+          <input
+            type="text"
+            placeholder="Ej: Agua Nutreco 500ml"
+            [ngModel]="nuevoNombre()"
+            (ngModelChange)="nuevoNombre.set($event)"
+          />
+        </label>
+        <label>
+          Precio de venta
+          <input
+            type="number"
+            inputmode="decimal"
+            placeholder="0"
+            [ngModel]="nuevoPrecio()"
+            (ngModelChange)="nuevoPrecio.set($event)"
+          />
+        </label>
+        <label>
+          ¿Cuántos tenés? (stock)
+          <input
+            type="number"
+            inputmode="numeric"
+            placeholder="0"
+            [ngModel]="nuevoStock()"
+            (ngModelChange)="nuevoStock.set($event)"
+          />
+        </label>
+        @if (error()) {
+          <p class="error-msg">{{ error() }}</p>
+        }
+        <div class="modal-botones">
+          <button type="button" class="secundario" (click)="cancelarAltaRapida()">
+            Cancelar
+          </button>
+          <button type="button" class="primario" [disabled]="creandoProd()" (click)="guardarNuevoProducto()">
+            {{ creandoProd() ? 'Guardando…' : 'Crear y agregar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>
