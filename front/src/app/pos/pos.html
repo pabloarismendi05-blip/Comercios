@@ -8,6 +8,7 @@
       placeholder="Buscar producto o código…"
       [value]="query()"
       (input)="onBuscar($any($event.target).value)"
+      (focus)="onFocus()"
       autocomplete="off"
     />
     <button type="button" class="btn-manual" (click)="abrirManual()">
@@ -31,6 +32,29 @@
                 class="stock"
                 [class.bajo]="p.stockActual <= 0"
               >
+                Stock: {{ p.stockActual }}
+              </span>
+            </div>
+            <span class="precio">{{ p.precioVenta | currency: 'ARS' : 'symbol' : '1.0-2' }}</span>
+          </li>
+        }
+      }
+    </ul>
+  } @else if (enfocado()) {
+    <!-- Lista de productos para ojear (al tocar el buscador, sin escribir) -->
+    <ul class="resultados catalogo">
+      <li class="lista-cabecera">
+        <span>Tocá un producto para agregarlo</span>
+        <button type="button" class="link" (click)="cerrarLista()">Ocultar</button>
+      </li>
+      @if (catalogo().length === 0) {
+        <li class="vacio">No hay productos cargados todavía.</li>
+      } @else {
+        @for (p of catalogo(); track p.id) {
+          <li class="resultado" (click)="agregar(p)">
+            <div class="info">
+              <span class="nombre">{{ p.nombre }}</span>
+              <span class="stock" [class.bajo]="p.stockActual <= 0">
                 Stock: {{ p.stockActual }}
               </span>
             </div>

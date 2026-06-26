@@ -75,6 +75,32 @@
   color: #829ab1;
   text-align: center;
 }
+/* Catálogo (lista al tocar el buscador): scroll si hay muchos productos. */
+.resultados.catalogo {
+  max-height: 55dvh;
+  overflow-y: auto;
+}
+.lista-cabecera {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  background: #f0f6fc;
+  color: #486581;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-bottom: 1px solid #e1eaf3;
+}
+.lista-cabecera .link {
+  border: none;
+  background: transparent;
+  color: #1664a8;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.2rem 0.4rem;
+}
 .resultado {
   display: flex;
   justify-content: space-between;

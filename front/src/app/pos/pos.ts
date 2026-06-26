@@ -38,6 +38,11 @@ export class Pos {
   buscando = signal(false);
   private debounce: ReturnType<typeof setTimeout> | null = null;
 
+  // ── Catálogo (lista para ojear al tocar el buscador, sin escribir) ──
+  catalogo = signal<Producto[]>([]);
+  // Si el buscador está enfocado: mostramos la lista de productos completa.
+  enfocado = signal(false);
+
   // ── Estado del ticket ──
   ticket = signal<TicketItem[]>([]);
   total = computed(() =>
@@ -63,7 +68,30 @@ export class Pos {
   clienteSeleccionado = signal<Cliente | null>(null);
   private debounceCli: ReturnType<typeof setTimeout> | null = null;
 
+  constructor() {
+    this.cargarCatalogo();
+  }
+
   // ─────────────────────────── Búsqueda ───────────────────────────
+
+  // Trae todos los productos una vez, para mostrarlos como lista al tocar
+  // el buscador (así el kiosquero los ve sin tener que escribir).
+  private cargarCatalogo() {
+    this.api.listarProductos().subscribe({
+      next: (prods) => this.catalogo.set(prods),
+      error: () => this.catalogo.set([]),
+    });
+  }
+
+  // Al tocar el buscador, abrimos la lista de productos.
+  onFocus() {
+    this.enfocado.set(true);
+    if (this.catalogo().length === 0) this.cargarCatalogo();
+  }
+
+  cerrarLista() {
+    this.enfocado.set(false);
+  }
 
   onBuscar(valor: string) {
     this.query.set(valor);
@@ -279,10 +307,13 @@ export class Pos {
     this.ticket.set([]);
     this.query.set('');
     this.resultados.set([]);
+    this.enfocado.set(false);
     this.paso.set('venta');
     this.clienteSeleccionado.set(null);
     this.clienteQuery.set('');
     this.clientes.set([]);
+    // Releer el catálogo para reflejar el stock descontado por la venta.
+    this.cargarCatalogo();
   }
 
   private notificar(tipo: 'ok' | 'error', texto: string) {
