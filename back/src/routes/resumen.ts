@@ -20,24 +20,25 @@ resumenRouter.get("/resumen", async (req, res) => {
   const inicioSemana = new Date(inicioHoy);
   inicioSemana.setDate(inicioSemana.getDate() - 6);
 
+  // En todas las consultas, las ventas anuladas (anuladaEn != null) no cuentan.
   const [hoyAgg, semanaAgg, porMedioRaw, ventasSemana] = await Promise.all([
     prisma.venta.aggregate({
-      where: { empresaId, fechaHora: { gte: inicioHoy } },
+      where: { empresaId, anuladaEn: null, fechaHora: { gte: inicioHoy } },
       _sum: { total: true },
       _count: true,
     }),
     prisma.venta.aggregate({
-      where: { empresaId, fechaHora: { gte: inicioSemana } },
+      where: { empresaId, anuladaEn: null, fechaHora: { gte: inicioSemana } },
       _sum: { total: true },
       _count: true,
     }),
     prisma.venta.groupBy({
       by: ["medioPago"],
-      where: { empresaId, fechaHora: { gte: inicioHoy } },
+      where: { empresaId, anuladaEn: null, fechaHora: { gte: inicioHoy } },
       _sum: { total: true },
     }),
     prisma.venta.findMany({
-      where: { empresaId, fechaHora: { gte: inicioSemana } },
+      where: { empresaId, anuladaEn: null, fechaHora: { gte: inicioSemana } },
       select: { fechaHora: true, total: true },
     }),
   ]);

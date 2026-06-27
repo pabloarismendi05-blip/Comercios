@@ -73,6 +73,11 @@ model Venta {
   medioPago String   @map("medio_pago")
   clienteId Int?     @map("cliente_id")
 
+  // Anulación: si está anulada, deja de contar en caja/resumen/historial, pero
+  // NO se borra (queda el registro). anuladaEn = cuándo se anuló; motivo opcional.
+  anuladaEn       DateTime? @map("anulada_en")
+  motivoAnulacion String?   @map("motivo_anulacion")
+
   empresa Empresa     @relation(fields: [empresaId], references: [id])
   cliente Cliente?    @relation(fields: [clienteId], references: [id])
   items   VentaItem[]

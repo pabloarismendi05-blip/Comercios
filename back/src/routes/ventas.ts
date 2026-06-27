@@ -20,18 +20,22 @@ ventasRouter.get("/ventas", async (req, res) => {
     include: { cliente: true },
   });
 
-  const total = ventas.reduce((acc, v) => acc + Number(v.total), 0);
+  // El total del día suma SOLO las ventas vigentes (las anuladas no cuentan),
+  // pero las anuladas igual se listan (tachadas) para que quede el registro.
+  const vigentes = ventas.filter((v) => v.anuladaEn === null);
+  const total = vigentes.reduce((acc, v) => acc + Number(v.total), 0);
 
   res.json({
     fecha: claveFecha(base),
     total,
-    cantidad: ventas.length,
+    cantidad: vigentes.length,
     ventas: ventas.map((v) => ({
       id: v.id,
       fechaHora: v.fechaHora,
       total: Number(v.total),
       medioPago: v.medioPago,
       clienteNombre: v.cliente ? v.cliente.nombre : null,
+      anulada: v.anuladaEn !== null,
     })),
   });
 });
@@ -53,6 +57,9 @@ ventasRouter.get("/ventas/:id", async (req, res) => {
     total: Number(venta.total),
     medioPago: venta.medioPago,
     clienteNombre: venta.cliente ? venta.cliente.nombre : null,
+    anulada: venta.anuladaEn !== null,
+    anuladaEn: venta.anuladaEn,
+    motivoAnulacion: venta.motivoAnulacion,
     items: venta.items.map((it) => ({
       // Nombre del producto, o la descripción si fue un ítem manual.
       nombre: it.producto ? it.producto.nombre : it.descripcion ?? "Varios",
@@ -219,5 +226,80 @@ ventasRouter.post("/ventas", async (req, res) => {
     res.status(201).json({ ok: true, ventaId, total });
   } catch (err) {
     res.status(500).json({ error: "No se pudo registrar la venta.", detalle: String(err) });
+  }
+});
+
+// POST /api/ventas/:id/anular — anula una venta (no la borra).
+//
+// Deshace TODO lo que la venta hizo, de forma atómica:
+//   1) devuelve el stock de cada producto,
+//   2) si fue fiado, le baja la deuda al cliente,
+//   3) la marca como anulada (con fecha y motivo) → deja de contar en
+//      caja/resumen/historial, pero queda el registro.
+//
+// La plata "sale de la caja" sola: como las consultas de caja y resumen
+// excluyen las ventas anuladas, el efectivo esperado baja al anular.
+// Body: { motivo? }
+ventasRouter.post("/ventas/:id/anular", async (req, res) => {
+  const empresaId = req.empresaId;
+  const id = Number(req.params.id);
+  const motivo = String(req.body?.motivo ?? "").trim() || null;
+
+  if (!Number.isInteger(id) || id <= 0) {
+    return res.status(400).json({ error: "Venta inválida." });
+  }
+
+  // Cargar la venta (de esta empresa) con sus ítems.
+  const venta = await prisma.venta.findFirst({
+    where: { id, empresaId },
+    include: { items: true },
+  });
+  if (!venta) return res.status(404).json({ error: "La venta no existe." });
+  if (venta.anuladaEn !== null) {
+    return res.status(409).json({ error: "La venta ya estaba anulada." });
+  }
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      // 1) Devolver stock de los ítems que son productos.
+      for (const it of venta.items) {
+        if (it.productoId !== null) {
+          await tx.producto.update({
+            where: { id: it.productoId },
+            data: { stockActual: { increment: it.cantidad } },
+          });
+        }
+      }
+
+      // 2) Si fue fiado, sacarle la deuda al cliente.
+      if (venta.medioPago === "fiado" && venta.clienteId) {
+        await tx.cliente.update({
+          where: { id: venta.clienteId },
+          data: { saldo: { decrement: venta.total } },
+        });
+      }
+
+      // 3) Marcar la venta como anulada (queda el registro, no se borra).
+      await tx.venta.update({
+        where: { id: venta.id },
+        data: { anuladaEn: new Date(), motivoAnulacion: motivo },
+      });
+
+      // Dejar rastro en caja (tipo "anulacion" NO se suma en ningún cálculo,
+      // es solo para auditoría / que quede asentado el movimiento).
+      await tx.movimientoCaja.create({
+        data: {
+          empresaId,
+          tipo: "anulacion",
+          monto: venta.total,
+          descripcion: `Anulación venta #${venta.id}${motivo ? ` — ${motivo}` : ""}`,
+          clienteId: venta.clienteId,
+        },
+      });
+    });
+
+    res.json({ ok: true, ventaId: venta.id });
+  } catch (err) {
+    res.status(500).json({ error: "No se pudo anular la venta.", detalle: String(err) });
   }
 });

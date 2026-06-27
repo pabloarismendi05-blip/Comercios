@@ -64,6 +64,8 @@ async function calcularCajaAbierta(empresaId: number) {
   const whereVenta = (medio: string) => ({
     empresaId,
     medioPago: medio,
+    // Las ventas anuladas no cuentan en la caja.
+    anuladaEn: null,
     ...(rango ? { fechaHora: rango } : {}),
   });
   const whereMov = (tipo: string) => ({
