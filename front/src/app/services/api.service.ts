@@ -85,6 +85,7 @@ export interface VentaResumen {
   total: number;
   medioPago: string;
   clienteNombre: string | null;
+  anulada: boolean;
 }
 
 export interface VentasDia {
@@ -107,6 +108,9 @@ export interface VentaDetalle {
   total: number;
   medioPago: string;
   clienteNombre: string | null;
+  anulada: boolean;
+  anuladaEn: string | null;
+  motivoAnulacion: string | null;
   items: VentaItemDetalle[];
 }
 
@@ -208,6 +212,12 @@ export class ApiService {
   }
   ventaDetalle(id: number): Observable<VentaDetalle> {
     return this.http.get<VentaDetalle>(`${API}/ventas/${id}`);
+  }
+  anularVenta(id: number, motivo?: string): Observable<{ ok: boolean; ventaId: number }> {
+    return this.http.post<{ ok: boolean; ventaId: number }>(
+      `${API}/ventas/${id}/anular`,
+      { motivo }
+    );
   }
 
   // ── Caja / cierre ──

@@ -22,6 +22,11 @@ export class Historial {
   detalle = signal<VentaDetalle | null>(null);
   cargandoDetalle = signal(false);
 
+  // Anulación de la venta abierta en el detalle.
+  confirmandoAnular = signal(false);
+  motivoAnular = signal('');
+  anulando = signal(false);
+
   constructor() {
     this.cargar();
   }
@@ -95,5 +100,38 @@ export class Historial {
 
   cerrarDetalle() {
     this.detalle.set(null);
+    this.confirmandoAnular.set(false);
+    this.motivoAnular.set('');
+  }
+
+  // Paso 1: mostrar la confirmación de anular.
+  pedirAnular() {
+    this.confirmandoAnular.set(true);
+  }
+
+  cancelarAnular() {
+    this.confirmandoAnular.set(false);
+    this.motivoAnular.set('');
+  }
+
+  // Paso 2: confirmar. Anula en el server y refresca detalle + lista del día.
+  confirmarAnular() {
+    const v = this.detalle();
+    if (!v || this.anulando()) return;
+    this.anulando.set(true);
+    this.api.anularVenta(v.id, this.motivoAnular().trim() || undefined).subscribe({
+      next: () => {
+        this.anulando.set(false);
+        this.confirmandoAnular.set(false);
+        this.motivoAnular.set('');
+        // Recargar el detalle (ahora marcado anulada) y la lista del día.
+        this.abrirDetalle(v.id);
+        this.cargar();
+      },
+      error: (e) => {
+        this.anulando.set(false);
+        alert(e?.error?.error ?? 'No se pudo anular la venta.');
+      },
+    });
   }
 }

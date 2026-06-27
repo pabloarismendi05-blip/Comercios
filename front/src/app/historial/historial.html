@@ -27,7 +27,7 @@
     } @else {
       <ul class="lista">
         @for (v of d.ventas; track v.id) {
-          <li class="venta" (click)="abrirDetalle(v.id)">
+          <li class="venta" [class.anulada]="v.anulada" (click)="abrirDetalle(v.id)">
             <span class="hora">{{ v.fechaHora | date: 'HH:mm' }}</span>
             <div class="medio">
               <span class="m-icono">{{ iconoMedio(v.medioPago) }}</span>
@@ -35,6 +35,9 @@
                 {{ v.medioPago }}
                 @if (v.clienteNombre) {
                   · {{ v.clienteNombre }}
+                }
+                @if (v.anulada) {
+                  <span class="badge-anulada">ANULADA</span>
                 }
               </span>
             </div>
@@ -85,7 +88,48 @@
           <span>{{ v.total | currency: 'ARS' : 'symbol' : '1.0-0' }}</span>
         </div>
 
-        <button type="button" class="cerrar" (click)="cerrarDetalle()">Cerrar</button>
+        @if (v.anulada) {
+          <!-- Venta ya anulada: solo se informa, no se puede operar. -->
+          <div class="aviso-anulada">
+            <strong>Venta anulada</strong>
+            <span>{{ v.anuladaEn | date: 'short' }}</span>
+            @if (v.motivoAnulacion) {
+              <span class="motivo">Motivo: {{ v.motivoAnulacion }}</span>
+            }
+          </div>
+          <button type="button" class="cerrar" (click)="cerrarDetalle()">Cerrar</button>
+        } @else if (confirmandoAnular()) {
+          <!-- Confirmación de anulación con motivo opcional. -->
+          <div class="anular-confirm">
+            <p class="anular-aviso">
+              Se va a anular esta venta: vuelve el stock, sale de la caja
+              @if (v.medioPago === 'fiado') {
+                y se le baja la deuda al cliente
+              }
+              . Queda registrada como anulada (no se borra).
+            </p>
+            <input
+              type="text"
+              class="anular-motivo"
+              placeholder="Motivo (opcional)"
+              [value]="motivoAnular()"
+              (input)="motivoAnular.set($any($event.target).value)"
+            />
+            <div class="anular-botones">
+              <button type="button" class="btn-cancelar" (click)="cancelarAnular()" [disabled]="anulando()">
+                Volver
+              </button>
+              <button type="button" class="btn-anular-ok" (click)="confirmarAnular()" [disabled]="anulando()">
+                {{ anulando() ? 'Anulando…' : 'Sí, anular' }}
+              </button>
+            </div>
+          </div>
+        } @else {
+          <div class="det-acciones">
+            <button type="button" class="btn-anular" (click)="pedirAnular()">Anular venta</button>
+            <button type="button" class="cerrar" (click)="cerrarDetalle()">Cerrar</button>
+          </div>
+        }
       }
     </div>
   </div>
